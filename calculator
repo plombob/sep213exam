@@ -1,0 +1,116 @@
+#include <iostream>
+#include <string>
+
+using namespace std;
+
+// Функция для проверки, является ли символ оператором (+, -, *, /)
+bool isOperator(char c)
+{
+    return c == '+' || c == '-' || c == '*' || c == '/';
+}
+
+// Функция для выполнения операции над двумя числами
+int applyOperator(int a, char op, int b)
+{
+    if (op == '+')
+    {
+        return a + b;
+    }
+    if (op == '-')
+    {
+        return a - b;
+    }
+    if (op == '*')
+    {
+        return a * b;
+    }
+    if (op == '/')
+    {
+        if (b == 0)
+        {
+            cout << "Ошибка: деление на ноль." << endl;
+            return 0;
+        }
+        return a / b;
+    }
+    return 0;
+}
+
+// Функция для вычисления арифметического выражения
+int evaluateExpression(string expression)
+{
+    const int MAX_SIZE = 100;
+    int numStack[MAX_SIZE];
+    char opStack[MAX_SIZE];
+    int numTop = -1;
+    int opTop = -1;
+
+    for (size_t i = 0; i < expression.length(); ++i)
+    {
+        char c = expression[i];
+        if (isdigit(c))
+        {
+            int num = 0;
+            while (i < expression.length() && isdigit(expression[i]))
+            {
+                num = num * 10 + (expression[i] - '0');
+                ++i;
+            }
+            numStack[++numTop] = num;
+            --i;
+        }
+        else if (c == '(')
+        {
+            opStack[++opTop] = c;
+        }
+        else if (c == ')')
+        {
+            while (opTop >= 0 && opStack[opTop] != '(')
+            {
+                int b = numStack[numTop--];
+                int a = numStack[numTop--];
+                char op = opStack[opTop--];
+                numStack[++numTop] = applyOperator(a, op, b);
+            }
+            if (opTop >= 0 && opStack[opTop] == '(')
+            {
+                opTop--;
+            }
+        }
+        else if (isOperator(c))
+        {
+            while (opTop >= 0 && isOperator(opStack[opTop]) &&
+                ((c == '+' || c == '-') && (opStack[opTop] == '*' || opStack[opTop] == '/')))
+            {
+                int b = numStack[numTop--];
+                int a = numStack[numTop--];
+                char op = opStack[opTop--];
+                numStack[++numTop] = applyOperator(a, op, b);
+            }
+            opStack[++opTop] = c;
+        }
+    }
+
+    while (opTop >= 0)
+    {
+        int b = numStack[numTop--];
+        int a = numStack[numTop--];
+        char op = opStack[opTop--];
+        numStack[++numTop] = applyOperator(a, op, b);
+    }
+
+    return numStack[numTop];
+}
+
+int main()
+{
+    setlocale(LC_ALL, "RUS");
+    string expression;
+    cout << "Введите арифметическое выражение: ";
+    cin >> expression;
+
+    int result = evaluateExpression(expression);
+    cout << "Результат: " << result << endl;
+
+    return 0;
+}
