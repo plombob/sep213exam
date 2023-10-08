@@ -28,7 +28,7 @@ int applyOperator(int a, char op, int b)
     {
         if (b == 0)
         {
-            cout << "Ошибка: деление на ноль." << endl;
+            cout << "Ошибка: деление на ноль" << endl;
             return 0;
         }
         return a / b;
@@ -49,31 +49,32 @@ int evaluateExpression(string expression)
         char c = expression[i];
         if (isdigit(c))
         {
+            // Если символ - цифра, то собираем число
             int num = 0;
             while (i < expression.length() && isdigit(expression[i]))
             {
                 num = num * 10 + (expression[i] - '0');
                 ++i;
             }
-            numStack[++numTop] = num;
-            --i;
+            numStack[++numTop] = num;               // Помещаем число в стек чисел
+            --i;                // Возвращаемся назад, так как цикл for увеличивает i
         }
         else if (c == '(')
         {
             opStack[++opTop] = c;
         }
-        else if (c == ')')
+        else if (c == ')')  // При закрывающей скобке выполняем все операции внутри скобок
         {
             while (opTop >= 0 && opStack[opTop] != '(')
             {
-                int b = numStack[numTop--];
-                int a = numStack[numTop--];
-                char op = opStack[opTop--];
-                numStack[++numTop] = applyOperator(a, op, b);
+                int a = numStack[numTop--]; // Получаем первое число
+                int b = numStack[numTop--]; // Получаем второе число
+                char op = opStack[opTop--]; // Получаем оператор
+                numStack[++numTop] = applyOperator(a, op, b);       // Выполняем операцию и помещаем результат в стек чисел
             }
             if (opTop >= 0 && opStack[opTop] == '(')
             {
-                opTop--;
+                opTop--;        // Удаляем открывающую скобку из стека операторов
             }
         }
         else if (isOperator(c))
@@ -81,8 +82,8 @@ int evaluateExpression(string expression)
             while (opTop >= 0 && isOperator(opStack[opTop]) &&
                 ((c == '+' || c == '-') && (opStack[opTop] == '*' || opStack[opTop] == '/')))
             {
-                int b = numStack[numTop--];
                 int a = numStack[numTop--];
+                int b = numStack[numTop--];
                 char op = opStack[opTop--];
                 numStack[++numTop] = applyOperator(a, op, b);
             }
@@ -92,8 +93,8 @@ int evaluateExpression(string expression)
 
     while (opTop >= 0)
     {
-        int b = numStack[numTop--];
         int a = numStack[numTop--];
+        int b = numStack[numTop--];
         char op = opStack[opTop--];
         numStack[++numTop] = applyOperator(a, op, b);
     }
@@ -112,14 +113,16 @@ int main()
     cout << "Результат: " << result << endl;
 
     /*Calculator
-    Как работает программа шаг за шагом:
     Мы начинаем смотреть на каждую букву и знак в выражении один за другим
-    Если мы видим число, например, "5", мы кладем его в коробку numStack
-    Если мы видим скобку "(", то мы кладем ее в коробку opStack
-    Если мы видим скобку ")", это означает, что нужно сначала решить задачи внутри скобок. Мы берем числа и операторы из коробок и считаем результат
-    Если мы видим оператор (+, -, *, /), то мы проверяем, нужно ли его выполнить сейчас или подождать. Если да, мы считаем результат
+    Если мы видим число, например "5", мы кладем его в коробку numStack
+    Если мы видим скобку "(" то мы кладем ее в коробку opStack
+    Если мы видим скобку ")", это означает, что нужно сначала решить задачи внутри скобок
+    Мы берем числа и операторы из коробок и считаем результат
+    Если мы видим оператор (+, -, *, /), то мы проверяем нужно ли его выполнить сейчас или подождать
+    Если да, мы считаем результат
     Мы  продолжаем этот процесс для каждой буквы и знака в выражении
-    В конце, когда мы обработали всё выражение, у нас остаются числа и операторы в коробках numStack и opStack. Мы берем их и выполняем оставшиеся операции
+    В конце когда мы обработали всё выражение, у нас остаются числа и операторы в коробках numStack и opStack
+    Мы берем их и выполняем оставшиеся операции
     И вот результат – это то, что программа выведет на экран
     
     Переменные, которые помогают нам:
